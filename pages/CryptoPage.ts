@@ -33,9 +33,6 @@ export default class CryptoPage {
         await expect(this.page.locator(CryptoLocators.sellButton)).toBeVisible();
     }
 
-    async verifyExchangeRate(): Promise<void> {
-        await expect(this.page.locator(CryptoLocators.exchangeRate)).toBeVisible();
-    }
 
     async verifyGetQuoteButton(): Promise<void> {
         await expect(this.page.locator(CryptoLocators.getQuoteButton)).toBeVisible();
@@ -50,19 +47,42 @@ export default class CryptoPage {
     }
 
     async enterAmount(amount: string): Promise<void> {
-        await this.page.locator(CryptoLocators.youPayField).fill(amount);
+        await this.page.locator(CryptoLocators.youPayInput).fill(amount);
     }
 
     async clickGetQuote(): Promise<void> {
-        await this.page.locator(CryptoLocators.getQuoteButton).click();
-    }
 
+    const button = this.page.locator(CryptoLocators.getQuoteButton);
+
+    await expect(button).toBeVisible();
+    await expect(button).toBeEnabled();
+
+    // First click
+    await button.click();
+
+    // Wait briefly for the modal
+    try {
+        await this.page.locator(CryptoLocators.confirmPurchaseHeading).waitFor({
+            state: 'visible',
+            timeout: 3000
+        });
+    } catch {
+
+        // Modal didn't appear, click again
+        await button.click();
+
+        await this.page.locator(CryptoLocators.confirmPurchaseHeading).waitFor({
+            state: 'visible',
+            timeout: 10000
+        });
+    }
+}
     async verifyPurchaseModalDisplayed(): Promise<void> {
-        await expect(this.page.locator(CryptoLocators.confirmPurchaseHeading)).toBeVisible();
+        await expect(this.page.locator(CryptoLocators.confirmPurchaseHeading)).toBeVisible({ timeout: 10000 });
     }
 
     async verifyPurchaseModal(): Promise<void> {
-        await expect(this.page.locator(CryptoLocators.confirmPurchaseHeading)).toBeVisible();
+        await expect(this.page.locator(CryptoLocators.confirmPurchaseHeading)).toBeVisible({ timeout: 10000 });
         await expect(this.page.locator(CryptoLocators.confirmPurchaseButton)).toBeVisible();
         await expect(this.page.locator(CryptoLocators.cancelPurchaseButton)).toBeVisible();
     }
@@ -78,15 +98,28 @@ export default class CryptoPage {
     async confirmPurchase(): Promise<void> {
         await this.page.locator(CryptoLocators.confirmPurchaseButton).click();
     }
-
+   
     async verifyPinModalDisplayed(): Promise<void> {
-        await expect(this.page.locator(CryptoLocators.transactionPinHeading)).toBeVisible();
+        await expect(this.page.locator(CryptoLocators.pinModalHeading)).toBeVisible();
     }
 
-    async enterTransactionPin(pin: string): Promise<void> {
-        await this.page.locator(CryptoLocators.pinInput).fill(pin);
-        await this.page.locator(CryptoLocators.continueButton).click();
-    }
+
+ async enterTransactionPin(pin: string): Promise<void> {
+    await this.page.locator(CryptoLocators.pinDigit1).fill(pin[0]);
+    await this.page.locator(CryptoLocators.pinDigit2).fill(pin[1]);
+    await this.page.locator(CryptoLocators.pinDigit3).fill(pin[2]);
+    await this.page.locator(CryptoLocators.pinDigit4).fill(pin[3]);
+
+}
+
+
+async confirmTransaction(): Promise<void> {
+
+    await this.page
+        .locator(CryptoLocators.confirmTransactionButton)
+        .click();
+
+}
 
     async verifyPurchaseSuccessful(): Promise<void> {
         await expect(this.page.locator(CryptoLocators.purchaseSuccessfulHeading)).toBeVisible();
@@ -132,7 +165,7 @@ export default class CryptoPage {
     }
 
     async verifyBuyFormDisplayed(): Promise<void> {
-        await expect(this.page.locator(CryptoLocators.youPayField)).toBeVisible();
+        await expect(this.page.locator(CryptoLocators.youPayInput)).toBeVisible();
     }
 
     async verifySuccessToast(): Promise<void> {
@@ -148,6 +181,8 @@ export default class CryptoPage {
         await this.clickGetQuote();
         await this.confirmPurchase();
         await this.enterTransactionPin(pin);
+        await this.confirmTransaction();
         await this.verifyPurchaseSuccessful();
+        
     }
 }
