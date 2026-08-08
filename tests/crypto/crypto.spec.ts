@@ -1,4 +1,5 @@
 import { test } from '../../fixtures/authFixtures';
+import {CryptoData } from '../../testData/cryptoData';
 
 test.describe('Crypto Feature', () => {
 
@@ -34,7 +35,7 @@ test.describe('Crypto Feature', () => {
     });
 
     test('Confirm Purchase modal should display successfully', async ({ cryptoPage }) => {
-        await cryptoPage.enterAmount('1000');
+        await cryptoPage.enterAmount(CryptoData.amount.purchase);
         await cryptoPage.clickGetQuote();
         await cryptoPage.verifyPurchaseModal();
     });
@@ -55,13 +56,13 @@ test.describe('Crypto Feature', () => {
 
   test('User should enter transaction PIN successfully', async ({ cryptoPage }) => {
 
-    await cryptoPage.enterAmount('500');
+    await cryptoPage.enterAmount(CryptoData.amount.minimum);
 
     await cryptoPage.clickGetQuote();
 
     await cryptoPage.confirmPurchase();
 
-    await cryptoPage.enterTransactionPin('1759');
+    await cryptoPage.enterTransactionPin(CryptoData.pin);
 
     await cryptoPage.confirmTransaction();
 
@@ -71,7 +72,7 @@ test.describe('Crypto Feature', () => {
     test.describe('After successful crypto purchase', () => {
 
         test.beforeEach(async ({ cryptoPage }) => {
-            await cryptoPage.completeCryptoPurchase('500', '1759');
+            await cryptoPage.completeCryptoPurchase(CryptoData.amount.minimum, CryptoData.pin);
         });
 
         test('Purchase successful modal should display successfully', async ({ cryptoPage }) => {
@@ -102,14 +103,6 @@ test.describe('Crypto Feature', () => {
             await cryptoPage.clickBuyAgain();
             await cryptoPage.verifyBuyFormDisplayed();
         });
-
-        // test('Success toast should be displayed after purchase', async ({ cryptoPage }) => {
-        //     await cryptoPage.verifySuccessToast();
-        // });
-
-        // test('Completed transaction should appear in Recent Transaction successfully', async ({ cryptoPage }) => {
-        //     await cryptoPage.verifyTransactionAddedToHistory();
-        // });
 
     });
 
